@@ -23,5 +23,5 @@ for file_name in lst_pdfs:
 
 """
 
-    #merged_object.write(f’orders/{str_output_name}’)
+    #merged_object.write(/{str_output_name}’)
 """
