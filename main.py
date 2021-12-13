@@ -1,6 +1,31 @@
-# importing required modules
+# Import the required libraries
+from tkinter import *
+from tkinter import ttk
+import tkinter.filedialog as fd
 import PyPDF2
-import io
+from tkinter import messagebox
+
+# Create an instance of tkinter frame or window
+win = Tk()
+
+# Set the geometry of tkinter frame
+win.geometry("700x350")
+
+
+# Set title menu bar
+
+H1 = Label(win, text = "Scalator 0.1")
+H2 = Label(win, text = "Oprogramowanie służy do scalania plików PDF."\
+           "Naciśnij przycisk przytrzymując przycisk CTRL na klawiaturze dokonaj zaznaczenia. Program automatycznie wygeneruje plik i powiadomi o sukcesie.")
+
+H1.config(font =("Arial", 14))
+H2.config(font =("Arial", 8))
+
+H1.pack()
+# H2.pack()
+
+
+
 
 def PDFmerge(pdfs, output):
     # creating pdf file merger object
@@ -13,22 +38,26 @@ def PDFmerge(pdfs, output):
     # writing combined pdf to output pdf file
     with open(output, 'wb') as f:
         pdfMerger.write(f)
+    messagebox.showinfo("showinfo", "Scalanie plików zakończone sukcesem")
 
 
-def main():
+def open_file():
+   file = fd.askopenfilenames(parent=win, title='Wybierz plik')
+   pdfs = win.splitlist(file)
+   output = 'combined_example.pdf'
+   PDFmerge(pdfs=pdfs, output=output)
 
-    # pdf files to merge
 
-    pdfs = ['1.pdf', '2.pdf']
+# Add a Button Widget
+ttk.Button(win, text="Zaznacz wiele plików PDF", command=open_file).pack()
 
-    # output pdf file name
-    output = 'combined_example.pdf'
+win.mainloop()
 
-    # calling pdf merge function
-    PDFmerge(pdfs=pdfs, output=output)
-"""
 
-"""
-if __name__ == "__main__":
-    # calling the main function
-    main()
+
+
+
+
+
+
+  
