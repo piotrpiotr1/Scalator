@@ -1,27 +1,34 @@
+# importing required modules
+import PyPDF2
+import io
+
+def PDFmerge(pdfs, output):
+    # creating pdf file merger object
+    pdfMerger = PyPDF2.PdfFileMerger()
+
+    # appending pdfs one by one
+    for pdf in pdfs:
+        pdfMerger.append(pdf)
+
+    # writing combined pdf to output pdf file
+    with open(output, 'wb') as f:
+        pdfMerger.write(f)
 
 
-from PyPDF2 import PdfFileMerger, PdfFileReader
-import os
+def main():
 
+    # pdf files to merge
 
-merged_object = PdfFileMerger()
-str_output_name = 'output.pdf'
+    pdfs = ['1.pdf', '2.pdf']
 
-lst_pdfs = []
-for obj in os.listdir('pdf/'):
-    if '.pdf' not in obj:
-        pass
-    else:
-        lst_pdfs.append(obj)
-files = (','.join(lst_pdfs))
-print(files)
+    # output pdf file name
+    output = 'combined_example.pdf'
 
-
-for file_name in lst_pdfs:
-    merged_object.append(PdfFileReader('files', 'rb'))
-
-
+    # calling pdf merge function
+    PDFmerge(pdfs=pdfs, output=output)
 """
 
-    #merged_object.write(/{str_output_name}’)
 """
+if __name__ == "__main__":
+    # calling the main function
+    main()
