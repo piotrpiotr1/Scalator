@@ -7,7 +7,8 @@ from tkinter.simpledialog import askstring
 import PyPDF2
 from tkinter import messagebox
 from fpdf import FPDF
-
+from barcode import EAN13
+from barcode.writer import ImageWriter
 
 def retrieve():
     
@@ -24,12 +25,18 @@ def retrieve():
     pdf.cell(200, 10, txt = str(my_entry.get()), 
              ln = 1, align = 'C')
 
-    pdf.cell(200, 10, txt = str(my_entry.get()), 
+    pdf.cell(200, 10, txt = str(my_entry2.get()), 
              ln = 2, align = 'C')
+    new_barcode = str(my_barcode)
+    my_code = EAN13(new_barcode)
+  
+    # Our barcode is ready. Let's save it.
+    my_code.save("new_code")
+
       
-    pdf.cell(200, 10, txt = str(my_entry.get()), 
-             ln = 3, align = 'C')
- 
+    #pdf.cell(200, 10, txt = str(EAN13(my_barcode.get())), 
+     #        ln = 3, align = 'C')
+    
     # save the pdf with name .pdf
     pdf.output("okladka.pdf")
     messagebox.showinfo("showinfo", "Utworzono okładkę")
@@ -39,7 +46,7 @@ def NewCover():
     global Button
     global my_entry
     global my_entry2
-    global my_entry3
+    global my_barcode
     global window
     window = Toplevel()
     window.geometry('300x150')
@@ -55,14 +62,50 @@ def NewCover():
     my_entry2.pack(padx = 5, pady = 5)
 
 
-    my_entry3 = Entry(window, width = 20)
-    my_entry3.insert(0,'EAN')
-    my_entry3.pack(padx = 5, pady = 5)
+    my_barcode = Entry(window, width = 20)
+    my_barcode.insert(0,'EAN')
+    my_barcode.pack(padx = 5, pady = 5)
 
     Button = Button(window, text = "Zapisz", command = retrieve)
     Button.pack(padx = 5, pady = 5)
  
+
+def faq():
+    window = Toplevel()
+    window.geometry('300x150')
+    faqLabel = Label(window, text = "FAQ")
+    faqText = Label(window, text = "Tutaj bedzie FAQ")
+    faqText.place(relx = 0.5,
+                   rely = 0.5,
+                   anchor = 'center')
+    faqLabel.pack()
+    
+    T = Text(window, height = 5, width = 52)
    
+def contact():
+    window = Toplevel()
+    window.geometry('300x150')
+    contactLabel = Label(window, text = "Kontakt")
+    contactText = Label(window, text = "p.borowiec@wobee.pl")
+    contactText.place(relx = 0.5,
+                   rely = 0.5,
+                   anchor = 'center')
+    contactLabel.pack()
+    
+    T = Text(window, height = 5, width = 52)
+
+
+def error():
+    window = Toplevel()
+    window.geometry('300x150')
+    errorLabel = Label(window, text = "Zgłoś błąd")
+    errorText = Label(window, text = "Zgłoś błąd na adres email: p.borowiec@wobee.pl")
+    errorText.place(relx = 0.5,
+                   rely = 0.5,
+                   anchor = 'center')
+    errorLabel.pack()
+    
+    T = Text(window, height = 5, width = 52)    
     
 
 # Create an instance of tkinter frame or window
@@ -92,10 +135,10 @@ pdfMenu.add_command(label ='Scal pliki', command = None)
 
 help_ = Menu(menubar, tearoff = 0)
 menubar.add_cascade(label ='Pomoc', menu = help_)
-help_.add_command(label ='FAQ', command = None)
-help_.add_command(label ='Kontakt', command = None)
+help_.add_command(label ='FAQ', command = faq)
+help_.add_command(label ='Kontakt', command = contact)
 help_.add_separator()
-help_.add_command(label ='Zgłość błąd', command = None)
+help_.add_command(label ='Zgłość błąd', command = error)
 
 
 
