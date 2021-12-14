@@ -11,9 +11,11 @@ from fpdf import FPDF
 from barcode import EAN13
 from barcode.writer import ImageWriter
 import os
+from datetime import datetime
 
 
-
+now = datetime.now()
+date_time = now.strftime("%m/%d/%Y")
 # Generate new cover PDF
 def coverPDF():
     
@@ -91,6 +93,8 @@ def faq():
     faqLabel.pack()
     
     T = Text(window, height = 5, width = 52)
+    
+    
 
 # Contact window   
 def contact():
@@ -126,15 +130,23 @@ frame.pack()
 leftframe = Frame(win)
 leftframe.pack(side=TOP, anchor=NW)
 
+
+
 rightframe = Frame(win)
 rightframe.pack(side=TOP, anchor=NW)
 
+left2frame = Frame(win)
+left2frame.pack(side=TOP, anchor=SW)
+
+
+bottomframe = Frame(win)
+bottomframe.pack(side=BOTTOM, anchor=SW)
 
 # Title
 win.title('Scalator 1.0')
 
 
-)
+
 
 # Set the geometry of tkinter frame
 win.geometry("700x350")
@@ -163,45 +175,64 @@ help_.add_command(label ='Zgłość błąd', command = error)
 
 
 # Merge PDF document into one
-def PDFmerge(pdfs, output):
-    # creating pdf file merger object
-    pdfMerger = PyPDF2.PdfFileMerger()
+def PDFmerge():
+    MsgBox = tk.messagebox.askquestion ('Scalanie','Czy jesteś pewien aby rozpocząć scalanie plików? Proces może zająć parę chwil w zależności od wielkości plików oraz pamięci RAM komputera',icon = 'warning')
+    if MsgBox == 'yes':
+       # creating pdf file merger object
+        pdfMerger = PyPDF2.PdfFileMerger()
 
-    # appending pdfs one by one
-    for pdf in pdfs:
-        pdfMerger.append(pdf)
+        # appending pdfs one by one
+        for pdf in pdfs:
+            pdfMerger.append(pdf)
 
     
         
 
     # writing combined pdf to output pdf file
-    with open(output, 'wb') as f:
-        pdfMerger.write(f)
+        with open(os.path.join(folder_selected,date_time+output), 'wb') as f:
+            pdfMerger.write(f)
         
-        messagebox.showinfo("showinfo", "Scalanie plików zakończone sukcesem")
+            messagebox.showinfo("showinfo", "Scalanie plików zakończone sukcesem! Nazwa pliku "+output)
+    
+            
+    
 
+def deletePDF():
+   #Lb1.delete(0,END)
+   Lb1.delete(ANCHOR)
+   
+def deleteCover():
+   lbl.after(100, lbl.destroy())
+   
+
+
+    
 
 def open_file():
+   global Lb1
+   global pdfs
+   global output
    file = fd.askopenfilenames(parent=win, title='Wybierz plik',filetypes=[('PDF Files', '*.pdf')])
    pdfs = win.splitlist(file)
-   #print(file)
+   
    output = 'combined_example.pdf'
    
-   #lbl = Label(rightframe, text="Lokalizacja plików: " + str(pdfs))
-   #lbl.pack(side = LEFT)
-   #print(*pdfs, sep='\n')
-   scrollbar = Scrollbar(win, orient="vertical")
-   Lb1 = Listbox(win,width=100, height=10, yscrollcommand=scrollbar.set)
-   
+  
+
+   #scrollbar = Scrollbar(win, orient="vertical")
+  # Lb1 = Listbox(win,width=100, height=10, yscrollcommand=scrollbar.set)
+   #ttk.Button(win, text="Delete", command=delete).pack()
    Lb1.insert(END, *pdfs)
-   Lb1.pack(side=LEFT)
+   
+  # Lb1.pack(side=LEFT)
    
 
-   PDFmerge(pdfs=pdfs, output=output)
+   #PDFmerge(pdfs=pdfs, output=output)
 
 
 def open_cover():
     global coverPdf
+    global lbl
     cover = fd.askopenfilenames(parent=win, title='Wybierz plik',filetypes=[('PDF Files', '*.pdf')])
     #cover = fd.askopenfile(mode='r', filetypes=[('PDF Files', '*.pdf')])
     coverPdf = win.splitlist(cover)
@@ -218,8 +249,13 @@ def open_cover():
     lbl.pack()
 
  
-
-
+def pdfLocation():
+    
+    global folder_selected
+    folder_selected = fd.askdirectory()
+    lbl = Label(left2frame, text=str(folder_selected))
+    lbl.pack()
+    
 
 
 
@@ -229,6 +265,27 @@ button1 = Button(leftframe, text="Zaznacz okładkę", command=open_cover)
 button1.pack(padx = 3, pady = 3,side = LEFT)
 button2 = Button(rightframe, text="Zaznacz wiele plików PDF", command=open_file)
 button2.pack(padx = 3, pady = 3, side=LEFT)
+button3 = Button(rightframe, text="Usuń PDF", command=deletePDF)
+button3.pack(padx = 3, pady = 3, side=LEFT)
+button4 = Button(leftframe, text="Usuń okładkę", command=deleteCover)
+button4.pack(padx = 3, pady = 3,side = LEFT)
+button5 = Button(bottomframe, text="Scalaj", command=PDFmerge)
+button5.pack(padx = 3, pady = 3)
+button6 = Button(left2frame, text="Lokalizacja pliku wynikowego", command=pdfLocation)
+button6.pack(padx = 3, pady = 3,side=LEFT)
+
+
+#entry1 = tk.Entry(win) .pack()
+
+scrollbar = Scrollbar(win, orient="vertical")
+Lb1 = Listbox(win,width=100, height=10, yscrollcommand=scrollbar.set,selectmode=SINGLE)
+
+   
+Lb1.pack(side=LEFT)
+
+
+
+
 
 
 
