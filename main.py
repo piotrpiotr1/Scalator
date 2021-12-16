@@ -8,7 +8,7 @@ from tkinter.simpledialog import askstring
 import PyPDF2
 from tkinter import messagebox
 from fpdf import FPDF
-from barcode import EAN13
+from barcode import *
 from barcode.writer import ImageWriter
 import os
 from datetime import datetime
@@ -20,66 +20,139 @@ date_time = now.strftime("%m/%d/%Y")
 def coverPDF():
     
     pdf = FPDF()
-  
-    # Add a page
+    barType = barcodeType.get()
+    vFont = vFontTitle.get()
+   
+    number = my_barcode.get()
     pdf.add_page()
-      
-    # set style and size of font 
-    # that you want in the pdf
-    pdf.set_font("Arial", size = 15)
-      
-    # create a cell
+    pdf.set_font(vFont, size = 15)
+          
+        # create a cell
     pdf.cell(200, 10, txt = str(my_entry.get()), 
-             ln = 1, align = 'C')
+                 ln = 1, align = 'C')
 
     pdf.cell(200, 10, txt = str(my_entry2.get()), 
-             ln = 2, align = 'C')
-
-    number = my_barcode.get()
-    my_code = EAN13(number, writer=ImageWriter())
-    my_code.save("new_code1")
-  
-    # Our barcode is ready. Let's save it.
+                 ln = 2, align = 'C')
     
+    if barType == 'EAN113':
 
-      
+        my_code = EAN13(number, writer=ImageWriter())
+
+
+        my_code.save("new_code1")
+
+    elif barType == 'EAN8':
+
+
+        my_code = EAN8(number, writer=ImageWriter())
+
+
+        my_code.save("new_code1")
+        # Our barcode is ready. Let's save it.
+        
+
+          
     pdf.image("new_code1.png", x = None, y = None, w = 0, h = 0, type = '', link = '')
-    
-    # save the pdf with name .pdf
+        
+        # save the pdf with name .pdf
     pdf.output("okladka.pdf")
     messagebox.showinfo("showinfo", "Utworzono okładkę")
-    window.destroy()
+    #window.destroy()
 
 
 
     
 # New Cover Window
 def NewCover():
-    global Button
+    global Button2
     global my_entry
     global my_entry2
     global my_barcode
     global window
-    window = Toplevel()
-    window.geometry('300x150')
-    newCoverlabel = Label(window, text = "Stwórz nową okładkę")
-    newCoverlabel.pack()
- 
-    my_entry = Entry(window, width = 50)
-    my_entry.insert(0,'Head')
-    my_entry.pack(padx = 5, pady = 5)   
+    global barcodeType
+    global vFontTitle
+   # global vFontSubTitle
 
-    my_entry2 = Entry(window, width = 20)
-    my_entry2.insert(0,'Body')
+        
+    window = Toplevel()
+    window.geometry('600x300')
+    #newCoverlabel = Label(window, text = "Stwórz nową okładkę")
+    #newCoverlabel.pack()
+    
+    
+    #my_entry = Entry(leftframe, width = 50)
+    #my_entry.insert(0,'')
+    #label_my_entry = Label(leftframe, text = "Nagłówek")
+    #label_my_entry.pack()
+    #my_entry.pack(padx = 5, pady = 5)   
+    
+    frame1 = Frame(window, padx=5, pady=5)
+    frame1.grid(row=0, column=1)
+
+    Label(frame1, text='Tytuł', padx=5, pady=5).pack()
+    Label(frame1, text='Podtytuł', padx=5, pady=5).pack()
+    Label(frame1, text='Kod kreskowy', padx=5, pady=5).pack()
+ 
+
+    frame2 = Frame(window, padx=5, pady=5)
+    frame2.grid(row=0, column=2)
+
+    my_entry = Entry(frame2,width = 50)
+    my_entry.insert(0,'')
+    my_entry.pack(padx = 5, pady = 5)
+
+
+    my_entry2 = Entry(frame2,width = 50)
+    my_entry2.insert(0,'')
     my_entry2.pack(padx = 5, pady = 5)
 
 
-    my_barcode = Entry(window, width = 20)
-    my_barcode.insert(0,'5901234123457')
+    my_barcode = Entry(frame2,width = 50)
+    my_barcode.insert(0,'')
     my_barcode.pack(padx = 5, pady = 5)
 
-    Button = Button(window, text = "Zapisz", command = coverPDF)
-    Button.pack(padx = 5, pady = 5)
+
+    frame3 = Frame(window, padx=5, pady=5)
+    frame3.grid(row=0, column=3)
+
+    
+    vFontTitle = ["Arial","Courier","Helvetica","Times"]
+    vFontTitle = ttk.Combobox(frame3, values = vFontTitle)
+    vFontTitle.set("Wybierz czcionkę")
+    vFontTitle.pack(padx = 5, pady = 5)
+
+    vbarcode = ["EAN13", "EAN8"]
+    barcodeType = ttk.Combobox(frame3, values = vbarcode)
+    barcodeType.set("Wybierz format kodu kreskowego")
+    barcodeType.pack(padx = 5, pady = 5)
+
+    frame3 = Frame(window, padx=5, pady=5)
+    frame3.grid(row=1, column=1)
+    Button2 = Button(frame3, text = "Zapisz", command= coverPDF)
+    Button2.pack(padx = 5, pady = 5)
+
+"""
+
+    
+     
+    Button2 = Button(window, text = "Zapisz", command= coverPDF)
+    Button2.pack(padx = 5, pady = 5)
+
+    
+    barcodeType = StringVar()
+ 
+    RBttn = Radiobutton(window, text = "EAN13", variable = barcodeType,
+                    value = "EAN13",tristatevalue=0)
+    RBttn.pack(padx = 5, pady = 5)
+ 
+    RBttn2 = Radiobutton(window, text = "EAN8", variable = barcodeType,
+                     value = "EAN8",tristatevalue=0)
+    RBttn2.pack(padx = 5, pady = 5)
+    
+    
+
+    
+    """
  
 # FAQ windows
 def faq():
@@ -189,7 +262,7 @@ def PDFmerge():
         
 
     # writing combined pdf to output pdf file
-        with open(os.path.join(folder_selected,date_time+output), 'wb') as f:
+        with open(os.path.join(folder_selected,output), 'wb') as f:
             pdfMerger.write(f)
         
             messagebox.showinfo("showinfo", "Scalanie plików zakończone sukcesem! Nazwa pliku "+output)
