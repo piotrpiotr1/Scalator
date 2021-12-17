@@ -134,7 +134,7 @@ def NewCover():
 """
 
     
-     ssnn
+    
     Button2 = Button(window, text = "Zapisz", command= coverPDF)
     Button2.pack(padx = 5, pady = 5)
 
