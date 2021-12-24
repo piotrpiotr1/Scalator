@@ -14,16 +14,112 @@ import os
 from datetime import datetime
 
 
-now = datetime.now()
-date_time = now.strftime("%m/%d/%Y")
+
+datename = datetime.now().strftime("%Y_%m_%d-%H_%M_%S ")
+
+
 # Generate new cover PDF
+
+
+class PDF(FPDF):
+    def header(self):
+        # Logo
+        
+        self.image(fileImage, 80, 30, 33)
+
+
+        
+        vFont = vFontTitle.get()
+        sizeTitlea= sizeTitle.get()
+        
+        # Arial bold 15
+        self.set_font(vFont, 'B', int(sizeTitlea))
+        # Move to the right
+        #self.cell(50,10)
+        self.set_xy(50, 70)
+        # Title
+        #self.cell(30, 10, str(my_entry.get()), 1, 0, 'C')
+
+        self.multi_cell(120,20, str(my_entry.get()),0,'C')
+        
+        # Line break
+        self.ln(20)
+
+    
+        
+
+   
+  
+
+
+
+
+    # Page footer
+    #def footer(self):
+        # Position at 1.5 cm from bottom
+     #   self.set_y(-15)
+        # Arial italic 8
+      #  self.set_font('Arial', 'I', 8)
+        # Page number
+       # self.cell(0, 10, 'Stro ' + str(self.page_no()) + '/{nb}', 0, 0, 'C')
+
+# Instantiation of inherited class
+def coverPDF():
+
+    try:
+        val = int(sizeSubTitle.get())
+        val = int(sizeTitle.get())
+    except ValueError:
+        messagebox.showerror("showerror",'Wprowadź poprawne dane')
+        raise
+        
+    
+   
+    pdf = PDF()
+    pdf.alias_nb_pages()
+    pdf.add_page()
+    barType = barcodeType.get()
+    number = my_barcode.get()
+    
+    sizeSubTitlea = sizeSubTitle.get()
+    vFontSub = vFontSubTitle.get()
+    pdf.set_font(vFontSub, '', int(sizeSubTitlea))
+    pdf.set_xy(50, 150)
+    pdf.multi_cell(120,20, str(my_entry2.get()),0,'C')
+
+    if barType == 'EAN113':
+
+        my_code = EAN13(number, writer=ImageWriter())
+
+
+        my_code.save("new_code1")
+
+    elif barType == 'EAN8':
+
+
+        my_code = EAN8(number, writer=ImageWriter())
+
+
+        my_code.save("new_code1")
+        # Our barcode is ready. Let's save it.
+        
+
+          
+    pdf.image("new_code1.png", x = 50, y = 210,  h = 50, type = '', link = '')
+
+    
+    pdf.output('okladka.pdf', 'F')
+    messagebox.showinfo("showinfo", "Utworzono okładkę")
+
+
+"""
 def coverPDF():
     
     pdf = FPDF()
-    barType = barcodeType.get()
+    
     vFont = vFontTitle.get()
    
-    number = my_barcode.get()
+    
     pdf.add_page()
     pdf.set_font(vFont, size = 15)
           
@@ -59,7 +155,14 @@ def coverPDF():
     messagebox.showinfo("showinfo", "Utworzono okładkę")
     #window.destroy()
 
+"""
 
+def imagesCover():
+    global fileImage
+    fileImage = fd.askopenfilename(parent=win, title='Wybierz plik',filetypes=[('image files', ('.png', '.jpg')),])
+    #imageFileurl.instert(0,file)
+    imageFileurl.delete(0,END)
+    imageFileurl.insert(0,fileImage)
 
     
 # New Cover Window
@@ -71,11 +174,14 @@ def NewCover():
     global window
     global barcodeType
     global vFontTitle
-   # global vFontSubTitle
-
+    global vFontSubTitle
+    global sizeTitle
+    global sizeSubTitle
+    global frame2
+    global imageFileurl
         
     window = Toplevel()
-    window.geometry('600x300')
+    window.geometry('900x300')
     #newCoverlabel = Label(window, text = "Stwórz nową okładkę")
     #newCoverlabel.pack()
     
@@ -92,18 +198,20 @@ def NewCover():
     Label(frame1, text='Tytuł', padx=5, pady=5).pack()
     Label(frame1, text='Podtytuł', padx=5, pady=5).pack()
     Label(frame1, text='Kod kreskowy', padx=5, pady=5).pack()
+    Label(frame1, text='Logotyp', padx=5, pady=5).pack()
  
 
     frame2 = Frame(window, padx=5, pady=5)
     frame2.grid(row=0, column=2)
 
     my_entry = Entry(frame2,width = 50)
-    my_entry.insert(0,'')
+    my_entry.insert(0,'STAROSTWO POWIATOWE W CIESZYNIE')
     my_entry.pack(padx = 5, pady = 5)
+    
 
 
     my_entry2 = Entry(frame2,width = 50)
-    my_entry2.insert(0,'')
+    my_entry2.insert(0,'OPERAT SZACUNKOWY')
     my_entry2.pack(padx = 5, pady = 5)
 
 
@@ -112,29 +220,76 @@ def NewCover():
     my_barcode.pack(padx = 5, pady = 5)
 
 
+    
     frame3 = Frame(window, padx=5, pady=5)
-    frame3.grid(row=0, column=3)
+    frame3.grid(row=0, column=4)
+    
+        
+
+    sizeTitle = Entry(frame3,width = 5)
+    sizeTitle.insert(0,'35')
+    sizeTitle.pack(padx = 5, pady = 5)
+    
+    sizeSubTitle = Entry(frame3,width = 5)
+    sizeSubTitle.insert(0,'12')
+    sizeSubTitle.pack(padx = 5, pady = 5)
+
+
+    Label(frame3, text='', padx=5, pady=5).pack()
+    Label(frame3, text='', padx=5, pady=5).pack()
+
+
+    frame4 = Frame(window, padx=5, pady=5)
+    frame4.grid(row=0, column=5)
 
     
     vFontTitle = ["Arial","Courier","Helvetica","Times"]
-    vFontTitle = ttk.Combobox(frame3, values = vFontTitle)
+    vFontTitle = ttk.Combobox(frame4, values = vFontTitle)
     vFontTitle.set("Wybierz czcionkę")
     vFontTitle.pack(padx = 5, pady = 5)
 
+    vFontSubTitle = ["Arial","Courier","Helvetica","Times"]
+    vFontSubTitle = ttk.Combobox(frame4, values = vFontSubTitle)
+    vFontSubTitle.set("Wybierz czcionkę")
+    vFontSubTitle.pack(padx = 5, pady = 5)
+
     vbarcode = ["EAN13", "EAN8"]
-    barcodeType = ttk.Combobox(frame3, values = vbarcode)
+    barcodeType = ttk.Combobox(frame4, values = vbarcode)
     barcodeType.set("Wybierz format kodu kreskowego")
     barcodeType.pack(padx = 5, pady = 5)
 
+    Label(frame4, text='', padx=5, pady=5).pack()
+
     frame3 = Frame(window, padx=5, pady=5)
     frame3.grid(row=1, column=1)
-    Button2 = Button(frame3, text = "Zapisz", command= coverPDF)
+
+    frame5 = Frame(window, padx=5, pady=5)
+    frame5.grid(row=0, column=3)
+
+    Label(frame5, text='Czcionka wielkość', padx=5, pady=5).pack()
+    Label(frame5, text='Czcionka wielkość', padx=5, pady=5).pack()
+    Label(frame5, text='', padx=5, pady=5).pack()
+    Label(frame5, text='', padx=5, pady=5).pack()
+     
+    
+    
+    Button2 = Button(frame3, text = "Generują okładkę", command= coverPDF)
     Button2.pack(padx = 5, pady = 5)
+
+
+    Button3 = Button(frame2, text = "Wybierz", command= imagesCover)
+    Button3.pack(padx = 5, pady = 5,side =LEFT)
+
+
+    imageFileurl = Entry(frame2,width = 40)
+    
+    imageFileurl.pack(padx = 5, pady = 5)
+    
 
 """
 
     
-    
+     
     Button2 = Button(window, text = "Zapisz", command= coverPDF)
     Button2.pack(padx = 5, pady = 5)
 
@@ -198,8 +353,10 @@ def error():
 
 # Create an instance of tkinter frame or window
 win = Tk()
-frame = Frame(win)
-frame.pack()
+win.geometry("700x350")
+
+
+
 leftframe = Frame(win)
 leftframe.pack(side=TOP, anchor=NW)
 
@@ -222,7 +379,7 @@ win.title('Scalator 1.0')
 
 
 # Set the geometry of tkinter frame
-win.geometry("700x350")
+
 
 # Creating Menubar
 menubar = Menu(win)
@@ -249,33 +406,50 @@ help_.add_command(label ='Zgłość błąd', command = error)
 
 # Merge PDF document into one
 def PDFmerge():
-    MsgBox = tk.messagebox.askquestion ('Scalanie','Czy jesteś pewien aby rozpocząć scalanie plików? Proces może zająć parę chwil w zależności od wielkości plików oraz pamięci RAM komputera',icon = 'warning')
-    if MsgBox == 'yes':
-       # creating pdf file merger object
-        pdfMerger = PyPDF2.PdfFileMerger()
+    try: folder_selected      
+    except NameError: messagebox.showerror("showerror",'Nie wybrałeś folderu docelowego')
+    else:
 
-        # appending pdfs one by one
-        for pdf in pdfs:
-            pdfMerger.append(pdf)
 
-    
+        pdf = PDF()
         
-
-    # writing combined pdf to output pdf file
-        with open(os.path.join(folder_selected,output), 'wb') as f:
-            pdfMerger.write(f)
-        
-            messagebox.showinfo("showinfo", "Scalanie plików zakończone sukcesem! Nazwa pliku "+output)
-    
+        MsgBox = tk.messagebox.askquestion ('Scalanie','Czy jesteś pewien aby rozpocząć scalanie plików? Proces może zająć parę chwil w zależności od wielkości plików oraz pamięci RAM komputera',icon = 'warning')
+        if MsgBox == 'yes':
+           # creating pdf file merger object
             
-    
+            pdfMerger = PyPDF2.PdfFileMerger()
+            #pdf.set_compression(True)
+            
+            # appending pdfs one by one
+            for pdf in pdfs:
+                pdfMerger.append(pdf)
+            
+        
+            
+
+        # writing combined pdf to output pdf file
+            with open(os.path.join(folder_selected,datename+output), 'wb') as f:
+                pdfMerger.write(f)
+                #addMoreDataToPdf(output=output)
+                messagebox.showinfo("showinfo", "Scalanie plików zakończone sukcesem! Nazwa pliku "+output)
+            
+            
+def addMoreDataToPdf(output):
+    pdfFileObj = open(output, 'rb')
+    pdfReader = PyPDF2.PdfFileReader(pdfFileObj)
+    pdfReader.set_author('Piotr to mistrz')
+# printing number of pages in pdf file
+    print(pdfReader.numPages)
+        
+        
 
 def deletePDF():
    #Lb1.delete(0,END)
    Lb1.delete(ANCHOR)
    
 def deleteCover():
-   lbl.after(100, lbl.destroy())
+   #coverPDFurl.after(100, coverPDFurl.destroy())
+   coverPDFurl.delete(0,END)
    
 
 
@@ -283,19 +457,27 @@ def deleteCover():
 
 def open_file():
    global Lb1
+   global pdfsInsert
    global pdfs
    global output
    file = fd.askopenfilenames(parent=win, title='Wybierz plik',filetypes=[('PDF Files', '*.pdf')])
-   pdfs = win.splitlist(file)
+
+   pdfsInsert = win.splitlist(file)
+
+   try: coverTuple
+   except NameError: pdfs = pdfsInsert
+       
+   else:
+       pdfs = coverTuple+pdfInsert
    
-   output = 'combined_example.pdf'
+   output =  'Eksport.pdf'
    
   
 
    #scrollbar = Scrollbar(win, orient="vertical")
   # Lb1 = Listbox(win,width=100, height=10, yscrollcommand=scrollbar.set)
    #ttk.Button(win, text="Delete", command=delete).pack()
-   Lb1.insert(END, *pdfs)
+   Lb1.insert(END, *pdfsInsert)
    
   # Lb1.pack(side=LEFT)
    
@@ -304,30 +486,47 @@ def open_file():
 
 
 def open_cover():
-    global coverPdf
+
+    global coverTuple
+    global cover
     global lbl
-    cover = fd.askopenfilenames(parent=win, title='Wybierz plik',filetypes=[('PDF Files', '*.pdf')])
+    
+    cover = fd.askopenfilename(parent=win, title='Wybierz plik',filetypes=[('PDF Files', '*.pdf')])
     #cover = fd.askopenfile(mode='r', filetypes=[('PDF Files', '*.pdf')])
-    coverPdf = win.splitlist(cover)
+    #coverPdf = win.splitlist(cover)
+    #print(cover)
     #print(coverPdf)
-
-
+    coverTuple = tuple(map(str, cover.split(', ')))
+    
+    
+    
     #scrollbar = Scrollbar(win, orient="vertical")
     #Lb1 = Listbox(win,width=100, height=1, yscrollcommand=scrollbar.set)
     #Lb1.insert(END, *coverPdf)
     #Lb1.pack()
     #filepath = os.path.abspath(cover.name)
+    coverPDFurl.delete(0,END)
+    coverPDFurl.insert(0,cover)
+    #Lb2.insert(0, cover)
     
-    lbl = Label(leftframe, text=str(coverPdf))
-    lbl.pack()
+
+    #lbl = Label(leftframe, text=str(cover))
+    
+    
+    #my_entry.insert(0,'STAROSTWO POWIATOWE W CIESZYNIE')
+    #my_entry.pack(padx = 5, pady = 5)
+  
 
  
 def pdfLocation():
     
     global folder_selected
     folder_selected = fd.askdirectory()
-    lbl = Label(left2frame, text=str(folder_selected))
-    lbl.pack()
+    #lbl = Label(left2frame, text=str(folder_selected))
+    pdfLocationurl.delete(0,END)
+    pdfLocationurl.insert(0,str(folder_selected))
+    
+    #lbl.pack()
     
 
 
@@ -356,6 +555,27 @@ Lb1 = Listbox(win,width=100, height=10, yscrollcommand=scrollbar.set,selectmode=
    
 Lb1.pack(side=LEFT)
 
+
+
+
+
+coverPDFurl = Entry(leftframe,width = 80)
+coverPDFurl.pack(padx = 5, pady = 5)
+
+
+
+pdfLocationurl = Entry(left2frame,width = 50)
+pdfLocationurl.pack(padx = 5, pady = 5)
+
+
+#entry1 = tk.Entry(win) .pack()
+
+
+#Lb2 = Listbox(win,width=10, height=10,yscrollcommand=scrollbar.set,selectmode=SINGLE)
+
+   
+
+#Lb2.pack(side=RIGHT)
 
 
 
