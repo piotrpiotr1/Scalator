@@ -12,7 +12,15 @@ from barcode import *
 from barcode.writer import ImageWriter
 import os
 from datetime import datetime
+from PyPDF2 import PdfFileWriter, PdfFileReader
+import pycpdflib
+import sys
+sys.path.insert(0,'..')
 
+
+if  sys.platform.startswith('win64'):
+    
+    pycpdflib.loadDLL("libpycpdf.dll")
 
 
 datename = datetime.now().strftime("%Y_%m_%d-%H_%M_%S ")
@@ -353,6 +361,9 @@ def error():
 
 # Create an instance of tkinter frame or window
 win = Tk()
+style = ttk.Style()
+win.tk.call("source", "azure.tcl")
+win.tk.call("set_theme", "light")
 win.geometry("700x350")
 
 
@@ -417,31 +428,40 @@ def PDFmerge():
         if MsgBox == 'yes':
            # creating pdf file merger object
             
-            pdfMerger = PyPDF2.PdfFileMerger()
+            pdfMerger = PyPDF2.PdfFileMerger(strict=True)
+            #pdfWriter = PyPDF2.PdfFileWriter()
+            
             #pdf.set_compression(True)
             
             # appending pdfs one by one
             for pdf in pdfs:
                 pdfMerger.append(pdf)
             
-        
+            
             
 
-        # writing combined pdf to output pdf file
-            with open(os.path.join(folder_selected,datename+output), 'wb') as f:
+         #writing combined pdf to output pdf file
+            with open(os.path.join(folder_selected,output), 'wb') as f:
                 pdfMerger.write(f)
-                #addMoreDataToPdf(output=output)
+                
                 messagebox.showinfo("showinfo", "Scalanie plików zakończone sukcesem! Nazwa pliku "+output)
-            
-            
-def addMoreDataToPdf(output):
-    pdfFileObj = open(output, 'rb')
-    pdfReader = PyPDF2.PdfFileReader(pdfFileObj)
-    pdfReader.set_author('Piotr to mistrz')
-# printing number of pages in pdf file
-    print(pdfReader.numPages)
+             
+                
+                f.close()
+                
+                fromFile(output=output)
+def fromFile(output):
+
+
+    
+    pdf = pycpdflib.fromFile('../1.pdf','')
+    #pycpdflib.compress(pdf)
+    #pycpdflib.toFileExt(pdf, 'compress.pdf', False, False, True, True, True)
+
+
         
-        
+     
+ 
 
 def deletePDF():
    #Lb1.delete(0,END)
@@ -460,7 +480,13 @@ def open_file():
    global pdfsInsert
    global pdfs
    global output
-   file = fd.askopenfilenames(parent=win, title='Wybierz plik',filetypes=[('PDF Files', '*.pdf')])
+
+
+   file = fd.askopenfilenames(parent=win, title='Wybierz plik',filetypes=[('PDF Files', '*.pdf'),])
+   
+
+
+  
 
    pdfsInsert = win.splitlist(file)
 
@@ -468,8 +494,9 @@ def open_file():
    except NameError: pdfs = pdfsInsert
        
    else:
-       pdfs = coverTuple+pdfInsert
+       pdfs = coverTuple+pdfsInsert
    
+   #output =  datename+' Eksport.pdf'
    output =  'Eksport.pdf'
    
   
@@ -477,8 +504,9 @@ def open_file():
    #scrollbar = Scrollbar(win, orient="vertical")
   # Lb1 = Listbox(win,width=100, height=10, yscrollcommand=scrollbar.set)
    #ttk.Button(win, text="Delete", command=delete).pack()
+
    Lb1.insert(END, *pdfsInsert)
-   
+       
   # Lb1.pack(side=LEFT)
    
 
@@ -490,7 +518,7 @@ def open_cover():
     global coverTuple
     global cover
     global lbl
-    
+   
     cover = fd.askopenfilename(parent=win, title='Wybierz plik',filetypes=[('PDF Files', '*.pdf')])
     #cover = fd.askopenfile(mode='r', filetypes=[('PDF Files', '*.pdf')])
     #coverPdf = win.splitlist(cover)
