@@ -15,12 +15,11 @@ from datetime import datetime
 from PyPDF2 import PdfFileWriter, PdfFileReader
 import pycpdflib
 import sys
-sys.path.insert(0,'..')
 
 
-if  sys.platform.startswith('win64'):
-    
-    pycpdflib.loadDLL("libpycpdf.dll")
+
+os.add_dll_directory(r"C:\Users\Piotr\PycharmProjects\Scalator")
+pycpdflib.loadDLL("libpycpdf.dll")
 
 
 datename = datetime.now().strftime("%Y_%m_%d-%H_%M_%S ")
@@ -292,30 +291,8 @@ def NewCover():
     imageFileurl = Entry(frame2,width = 40)
     
     imageFileurl.pack(padx = 5, pady = 5)
-    
 
-"""
 
-    
-     
-    Button2 = Button(window, text = "Zapisz", command= coverPDF)
-    Button2.pack(padx = 5, pady = 5)
-
-    
-    barcodeType = StringVar()
- 
-    RBttn = Radiobutton(window, text = "EAN13", variable = barcodeType,
-                    value = "EAN13",tristatevalue=0)
-    RBttn.pack(padx = 5, pady = 5)
- 
-    RBttn2 = Radiobutton(window, text = "EAN8", variable = barcodeType,
-                     value = "EAN8",tristatevalue=0)
-    RBttn2.pack(padx = 5, pady = 5)
-    
-    
-
-    
-    """
  
 # FAQ windows
 def faq():
@@ -453,10 +430,10 @@ def PDFmerge():
 def fromFile(output):
 
 
-    
-    pdf = pycpdflib.fromFile('../1.pdf','')
-    #pycpdflib.compress(pdf)
-    #pycpdflib.toFileExt(pdf, 'compress.pdf', False, False, True, True, True)
+
+    pdf = pycpdflib.fromFile(output,'')
+    pycpdflib.squeezeInMemory(pdf)
+    pycpdflib.toFileExt(pdf, 'compress.pdf', False, False, True, True, True)
 
 
         
